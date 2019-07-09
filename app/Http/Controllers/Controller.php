@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\User;
 use App\Service;
 use App\Subscription;
+use DateTime;
 
 class Controller extends BaseController
 {
@@ -70,8 +71,13 @@ class Controller extends BaseController
 
         for ($i=0; $i < 100; $i++) {
 
-            $subs = Subscription::whereId($response[rand(1,(count($response)-1))])->first();
-            $subs->unsubscription_date = (rand(0,1)) ? date('Y-m-d') : $subs->subscription_date;
+            $subs = Subscription::inRandomOrder()->first();
+
+            $date1 = new DateTime($subs->subscription_date);
+            $date2 = new DateTime();
+            $diff = $date1->diff($date2);
+            $randDays = rand(1,$diff->days);
+            $subs->unsubscription_date = (rand(0,1)) ? date('Y-m-d', strtotime($subs->subscription_date. " + $randDays day")) : $subs->subscription_date;
             $subs->is_subscribed = false;
             $subs->save();
 
